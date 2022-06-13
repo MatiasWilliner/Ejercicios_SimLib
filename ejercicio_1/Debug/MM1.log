@@ -1,0 +1,18 @@
+﻿cl : línea de comandos warning D9035: La opción 'Gm' está desusada y se quitará en próximas versiones
+  MM1.cc
+C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\simdefs.h(29,1): warning C4005: 'INFINITY': redefinición de macro
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\corecrt_math.h(88): message : vea la definición anterior de 'INFINITY'
+C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\simlib.c(344,42): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\simlib.c(357,28): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\simlib.c(379,24): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\simlib.c(380,24): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\simlib.c(489,37): warning C4305: '=': truncamiento de 'double' a 'float'
+C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\simlib.c(490,37): warning C4305: '=': truncamiento de 'double' a 'float'
+C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\simlib.c(551,27): warning C4305: '=': truncamiento de 'double' a 'float'
+C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\simlib.c(552,27): warning C4305: '=': truncamiento de 'double' a 'float'
+C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\simlib.c(663,18): warning C4244: 'return': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\simlib.c(780,26): warning C4244: 'return': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\MM1.cc(36,8): warning C4101: 'minimo': variable local sin referencia
+C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\MM1.cc(36,16): warning C4101: 'maximo': variable local sin referencia
+MM1.obj : warning LNK4075: se omite '/EDITANDCONTINUE' debido a la especificación '/SAFESEH'
+  MM1.vcxproj -> C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\Debug\MM1.exe
