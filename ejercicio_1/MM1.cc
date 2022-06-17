@@ -10,18 +10,21 @@
 #define LlegadaColectivoAeropuerto           3  /* Tipo de Evento 3: Llegada colectivo aeropuerto          */
 #define LlegadaColectivoEstacion            4  /* Tipo de Evento 4: Arribo pasajeros estacion          */
 #define ArriboPasajerosEstacion           2  /* Tipo de Evento 2: Llegada colectivo aeropuerto          */
-#define Colectivo          1  /* Lista 1: Colectivo                  */
+#define ArriboMantenimiento				5  /* Tipo de Evento 5: Arribo para mantenimiento			*/
+#define FinMantenimiento           6  /* Tipo de Evento 6: Finalización del mantenimiento          */
+#define Colectivo					1	/* Lista 1: Colectivo                  */
 #define ColaAeropuerto              2  /* Lista 2: Cola en el aeropuerto                       */
-#define ColaTaxis             2  /* Lista 2: Cola en la estacion de taxis                      */
-#define DemoraCola      1  /* Sampst 1: Demora en cola        */
+#define ColaTaxis					3	/* Lista 3: Cola en la estacion de taxis                      */
+#define DemoraCola					1	/* Sampst 1: Demora en cola        */
 
 
 
 
 /* Declaraci¢n de variables propias */
 
-float media_interarribos_aeropuerto, media_interarribos_estacion, media_interarribos_colectivos, media_servicio;
+float media_interarribos_aeropuerto, media_interarribos_estacion, media_interarribos_colectivos, media_servicio, max_colectivo, min_colectivo;
 int num_clientes, clientes_act, i;
+bool mantenimiento = false;
 
 
 
@@ -51,8 +54,8 @@ int main()  /* Main function. */
 
 	media_interarribos_aeropuerto = 12.8;
 	media_interarribos_estacion = 7.9;
-	media_interarribos_colectivos = 12;
-	num_clientes =10000;
+	min_colectivo = 10;
+	max_colectivo = 15;
 
 	/* Initializar Simlib */
 	init_simlib();
@@ -86,10 +89,16 @@ int main()  /* Main function. */
 				Rutina_arribos_estacion();
 				break;
 			case LlegadaColectivoEstacion:
-				Rutina_llegadas_colectivo_aeropuerto;
+				Rutina_llegadas_colectivo_aeropuerto();
 				break;
 			case ArriboPasajerosEstacion:
-				Rutina_llegadas_colectivo_estacion;
+				Rutina_llegadas_colectivo_estacion();
+				break;
+			case ArriboMantenimiento:
+				Arribo_Mantenimiento();
+				break;
+			case FinMantenimiento:
+				Fin_Mantenimiento();
 				break;
         }
 	}
@@ -103,7 +112,7 @@ int main()  /* Main function. */
 
 void inicializa(void)  /* Inicializar el Sistema */
 {
-	/* Se carga el primer Arribo en la Lista de Eventos */
+	/* Se carga el primer Arribo en la Lista de Eventos. En este caso los arribos son por grupos */
 
 	transfer[1] = sim_time + expon(media_interarribos_aeropuerto, ArriboPasajerosAeropuerto);
 	transfer[2] = ArriboPasajerosAeropuerto;
@@ -113,22 +122,25 @@ void inicializa(void)  /* Inicializar el Sistema */
 	transfer[2] = ArriboPasajerosEstacion;
 	list_file(INCREASING, LIST_EVENT);
 
-	transfer[1] = sim_time + expon(media_interarribos_colectivos, LlegadaColectivoEstacion);
-	transfer[2] = ArriboPasajerosAeropuerto;
+	transfer[1] = sim_time + 30;
+	transfer[2] = LlegadaColectivoEstacion;
 	list_file(INCREASING, LIST_EVENT);
 
+	transfer[1] = sim_time + 240;
+	transfer[2] = ArriboMantenimiento;
+	list_file(INCREASING, LIST_EVENT);
 }
 
 
-void Rutina_arribos(void)  /* Evento Arribo */
+void Rutina_arribo_taxi(void)  /* Evento Arribo */
 {
 	
 	/* Determinar pr¢ximo arribo y cargar en Lista de Eventos */
-	/*
-	transfer[1] = sim_time + expon(media_interarribos_aeropuerto,Arribo);
-	transfer[2] = Arribo;
+	
+	transfer[1] = sim_time + expon(media_interarribos_aeropuerto,ArriboPasajerosEstacion);
+	transfer[2] = ArriboPasajerosEstacion;
 	list_file(INCREASING,LIST_EVENT);
-	*/
+	
 	/* Chequear si el Servidor est  desocupado */
 	/*
 	if (list_size[Servidor] == 0)
@@ -159,33 +171,59 @@ void Rutina_arribos(void)  /* Evento Arribo */
 	*/
 }
 
-
-void Rutina_partidas(void)  /* Evento Partida */
+void Rutina_arribos_aeropuerto(void)  /* Evento Arribo */
 {
 
-	/* Desocupar el Servidor */
-	/*
-	list_remove(FIRST, Servidor);
+	/* Determinar pr¢ximo arribo y cargar en Lista de Eventos */
+	
+	transfer[1] = sim_time + expon(media_interarribos_aeropuerto,ArriboPasajerosAeropuerto);
+	transfer[2] = ArriboPasajerosAeropuerto;
+	list_file(INCREASING,LIST_EVENT);
 
-	/* Ver si hay trabajos en cola */
-		/*
-	if (list_size[Cola] > 0)
-	{
-	   /* Sacar el primero de la cola y actualizar Demoras */
-		/*
-	   ++clientes_act;
-	   list_remove(FIRST, Cola);
-	   sampst(sim_time - transfer[1], Demora_cola);
+}
 
-	   /* Cargar en el Servidor y generar la partida */
-	   /*
-	   list_file(FIRST, Servidor);
+void Rutina_llegadas_colectivo_aeropuerto(void) 
+{
+	transfer[1] = sim_time + uniform(min_colectivo,max_colectivo,LlegadaColectivoEstacion);
+	transfer[2] = LlegadaColectivoEstacion;
+	list_file(INCREASING, LIST_EVENT);
 
-	   transfer[1] = sim_time + expon(media_servicio, Partida);
-	   transfer[2] = Partida;
-	   list_file(INCREASING,LIST_EVENT);
+	if (mantenimiento=false) {
+		//cargar pasajeros?
 	}
-	*/
+}
+
+
+//preguntar por la bandera al cargar pasajeros. Si es true, no se genera nuevo arribo. hacer if
+
+void Arribo_Mantenimiento(void) 
+{
+	/* 15 minutos */
+	transfer[1] = sim_time + 15;
+	transfer[2] = FinMantenimiento;
+	list_file(INCREASING, LIST_EVENT);
+	
+	/* 4 horas */
+	transfer[1] = sim_time + 240; 
+	transfer[2] = ArriboMantenimiento;
+	list_file(INCREASING, LIST_EVENT);
+
+	mantenimiento = true;
+}
+
+void Fin_Mantenimiento(void)
+{
+	mantenimiento = false;
+
+	//preguntar por la proxima carga de pasajeros directamente. Usar la lógica de ese evento en este
+
+}
+
+void Rutina_llegadas_colectivo_estacion(void)
+{
+	transfer[1] = sim_time + uniform(min_colectivo, max_colectivo, LlegadaColectivoAeropuerto);
+	transfer[2] = LlegadaColectivoAeropuerto;
+	list_file(INCREASING, LIST_EVENT);
 }
 
 
