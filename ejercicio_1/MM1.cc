@@ -12,9 +12,11 @@
 #define ArriboPasajerosEstacion           2  /* Tipo de Evento 2: Llegada colectivo aeropuerto          */
 #define ArriboMantenimiento				5  /* Tipo de Evento 5: Arribo para mantenimiento			*/
 #define FinMantenimiento           6  /* Tipo de Evento 6: Finalización del mantenimiento          */
+
 #define Colectivo					1	/* Lista 1: Colectivo                  */
 #define ColaAeropuerto              2  /* Lista 2: Cola en el aeropuerto                       */
 #define ColaTaxis					3	/* Lista 3: Cola en la estacion de taxis                      */
+
 #define DemoraCola					1	/* Sampst 1: Demora en cola        */
 
 
@@ -36,6 +38,8 @@ void Rutina_arribos_aeropuerto(void);
 void Rutina_arribos_estacion(void);
 void Rutina_llegadas_colectivo_aeropuerto(void);
 void Rutina_llegadas_colectivo_estacion(void);
+void Rutina_arribo_mantenimiento(void);
+void Rutina_fin_mantenimiento(void);
 void reporte(void);
 
 
@@ -64,8 +68,6 @@ int main()  /* Main function. */
 	inicializa();
 
 	/* Ejecutar la simulaci¢n. */
-
-	clientes_act = 0;
 
 	//ver lo del corte cada 4 hs - se trabaja las 24 horas - Simular una semana arrancando el micro a funcionar a los 30 minutos de inicida la simulación
 	// en este caso la media de servicio se obtiene directamente cuando sea necesaria con la función uniform(maximo,minimo,semilla(normalmente numero de evento))
@@ -109,7 +111,6 @@ int main()  /* Main function. */
 	system("pause");
 }
 
-
 void inicializa(void)  /* Inicializar el Sistema */
 {
 	/* Se carga el primer Arribo en la Lista de Eventos. En este caso los arribos son por grupos */
@@ -130,7 +131,6 @@ void inicializa(void)  /* Inicializar el Sistema */
 	transfer[2] = ArriboMantenimiento;
 	list_file(INCREASING, LIST_EVENT);
 }
-
 
 void Rutina_arribo_taxi(void)  /* Evento Arribo */
 {
@@ -188,12 +188,25 @@ void Rutina_llegadas_colectivo_aeropuerto(void)
 	transfer[2] = LlegadaColectivoEstacion;
 	list_file(INCREASING, LIST_EVENT);
 
+	//porque se realiza anexo a la estación de remises
+
 	if (mantenimiento=false) {
 		//cargar pasajeros?
 	}
 }
 
+void Rutina_llegadas_colectivo_estacion(void) {
 
+	transfer[1] = sim_time + uniform(min_colectivo, max_colectivo, LlegadaColectivoAeropuerto);
+	transfer[2] = LlegadaColectivoAeropuerto;
+	list_file(INCREASING, LIST_EVENT);
+
+	if (mantenimiento = true) {
+		if (ColaTaxis < 25) {
+			
+		}
+	}
+}
 //preguntar por la bandera al cargar pasajeros. Si es true, no se genera nuevo arribo. hacer if
 
 void Arribo_Mantenimiento(void) 
@@ -218,14 +231,6 @@ void Fin_Mantenimiento(void)
 	//preguntar por la proxima carga de pasajeros directamente. Usar la lógica de ese evento en este
 
 }
-
-void Rutina_llegadas_colectivo_estacion(void)
-{
-	transfer[1] = sim_time + uniform(min_colectivo, max_colectivo, LlegadaColectivoAeropuerto);
-	transfer[2] = LlegadaColectivoAeropuerto;
-	list_file(INCREASING, LIST_EVENT);
-}
-
 
 void reporte( void )  /* Generar Reporte de la Simulaci¢n */
 {
