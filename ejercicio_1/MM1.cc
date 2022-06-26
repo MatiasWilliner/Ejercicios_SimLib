@@ -25,11 +25,8 @@
 /* Declaraci¢n de variables propias */
 
 float media_interarribos_aeropuerto, media_interarribos_estacion, media_interarribos_colectivos, media_servicio, max_colectivo, min_colectivo;
-int num_clientes, clientes_act, i;
+int num_pasajeros, cantidad_viajes, i;
 bool mantenimiento = false;
-
-
-
 
 /* Declaraci¢n de Funciones propias */
 
@@ -54,8 +51,6 @@ int main()  /* Main function. */
  
    //fprintf(outfile,"The file 'data2' was not opened\n" );
 	
-		
-
 	media_interarribos_aeropuerto = 12.8;
 	media_interarribos_estacion = 7.9;
 	min_colectivo = 10;
@@ -113,33 +108,78 @@ int main()  /* Main function. */
 
 void inicializa(void)  /* Inicializar el Sistema */
 {
-	/* Se carga el primer Arribo en la Lista de Eventos. En este caso los arribos son por grupos */
+	//Se carga el primer Arribo en la Lista de Eventos. En este caso los arribos son por grupos
 
 	transfer[1] = sim_time + expon(media_interarribos_aeropuerto, ArriboPasajerosAeropuerto);
 	transfer[2] = ArriboPasajerosAeropuerto;
 	list_file(INCREASING,LIST_EVENT);
 
+	//inicializar el primer arribo de pasajeros a la estación de taxis
+
 	transfer[1] = sim_time + expon(media_interarribos_estacion, ArriboPasajerosEstacion);
 	transfer[2] = ArriboPasajerosEstacion;
 	list_file(INCREASING, LIST_EVENT);
+
+	//inicializar primer llegada del colectivo a la estación de taxis 30 minutos despues de iniciar la simulación
 
 	transfer[1] = sim_time + 30;
 	transfer[2] = LlegadaColectivoEstacion;
 	list_file(INCREASING, LIST_EVENT);
 
-	transfer[1] = sim_time + 240;
+	//inicializar el primer mantenimiento en 4 hs despues de iniciar a trabajar el colectivo
+
+	transfer[1] = sim_time + 270;
 	transfer[2] = ArriboMantenimiento;
 	list_file(INCREASING, LIST_EVENT);
 }
 
-void Rutina_arribo_taxi(void)  /* Evento Arribo */
+void Rutina_arribo_taxi(void)
 {
 	
-	/* Determinar pr¢ximo arribo y cargar en Lista de Eventos */
+	// Determinar pr¢ximo arribo y cargar en Lista de Eventos
 	
 	transfer[1] = sim_time + expon(media_interarribos_aeropuerto,ArriboPasajerosEstacion);
 	transfer[2] = ArriboPasajerosEstacion;
 	list_file(INCREASING,LIST_EVENT);
+
+	//guardar valores en cola taxis teniendo en cuenta las probabilidades de que lleguen uno o más pasajeros por arribo
+
+	float prob;
+
+	prob = lcgrand(ArriboPasajerosEstacion);
+
+	if (prob <= 0.1)
+	{
+		for (i = 0; i < 4; i++)
+		{
+			list_file(LAST, ColaTaxis);
+		}
+
+	}
+	else
+	{
+		if (prob <= 0.25)
+		{
+			for (i = 0; i < 3; i++)
+			{
+				list_file(LAST, ColaTaxis);
+			}
+		}
+		else
+		{
+			if (prob <= 0.55)
+			{
+				list_file(LAST, ColaTaxis);
+			}
+			else
+			{
+				for (i = 0; i < 2; i++)
+				{
+					list_file(LAST, ColaTaxis);
+				}
+			}
+		}
+	}
 	
 	/* Chequear si el Servidor est  desocupado */
 	/*
@@ -171,41 +211,167 @@ void Rutina_arribo_taxi(void)  /* Evento Arribo */
 	*/
 }
 
-void Rutina_arribos_aeropuerto(void)  /* Evento Arribo */
+void Rutina_arribos_aeropuerto(void)
 {
 
-	/* Determinar pr¢ximo arribo y cargar en Lista de Eventos */
+	// Determinar próximo arribo y cargar en Lista de Eventos
 	
 	transfer[1] = sim_time + expon(media_interarribos_aeropuerto,ArriboPasajerosAeropuerto);
 	transfer[2] = ArriboPasajerosAeropuerto;
 	list_file(INCREASING,LIST_EVENT);
 
+	//guardar valores en cola aeropuerto teniendo en cuenta las probabilidades de que lleguen uno o más pasajeros por arribo
+	
+	float prob;
+
+	prob = lcgrand(ArriboPasajerosAeropuerto);
+
+	if (prob<=0.1) 
+	{
+		for ( i = 0; i < 4; i++)
+		{
+			list_file(LAST, ColaAeropuerto);
+		}
+	}
+	else 
+	{
+		if (prob <= 0.25) 
+		{
+			for (i = 0; i < 3; i++)
+			{
+				list_file(LAST, ColaAeropuerto);
+			}
+		}
+		else
+		{
+			if (prob <= 0.55) 
+			{
+				list_file(LAST, ColaAeropuerto);
+			}
+			else 
+			{
+				for (i = 0; i < 2; i++)
+				{
+					list_file(LAST, ColaAeropuerto);
+				}
+			}
+		}
+	}
 }
 
 void Rutina_llegadas_colectivo_aeropuerto(void) 
 {
+	//genera próximo arribo de colectivo a estación de taxis
+
 	transfer[1] = sim_time + uniform(min_colectivo,max_colectivo,LlegadaColectivoEstacion);
 	transfer[2] = LlegadaColectivoEstacion;
 	list_file(INCREASING, LIST_EVENT);
 
-	//porque se realiza anexo a la estación de remises
+	//acumula el número de viajes
 
-	if (mantenimiento=false) {
-		//cargar pasajeros?
+	cantidad_viajes++;
+
+	//reduce la cola colectivo
+
+	int tamaño_colectivo =list_size[Colectivo];
+	int tamaño_cola_aeropuerto =list_size[ColaAeropuerto];
+
+	for  (i = 0; i < tamaño_colectivo; i++)
+	{
+		list_remove(FIRST, Colectivo);
+	}
+
+	//reduce la cola de pasajeros de la estación de taxis y aumenta la ocupación del colectivo
+
+	if (list_size[ColaAeropuerto] <= 25) 
+	{
+		for ( i = 0; i < tamaño_cola_aeropuerto; i++)
+		{
+			list_file(FIRST, Colectivo);
+			num_pasajeros++;
+		}
+	}
+	else 
+	{
+		for (i = 0; i < 25; i++)
+		{
+			list_file(FIRST, Colectivo);
+			num_pasajeros++;
+		}
+	}
+
+	if (list_size[ColaAeropuerto] <= 25)
+	{
+		for (i = 0; i < tamaño_cola_aeropuerto; i++)
+		{
+			list_remove(LAST, ColaAeropuerto);
+		}
+	}
+	else
+	{
+		for (i = 0; i < 25; i++)
+		{
+			list_remove(LAST, ColaAeropuerto);
+		}
 	}
 }
 
 void Rutina_llegadas_colectivo_estacion(void) {
 
+	//genera próximo arribo de colectivo a aeropuerto
+
 	transfer[1] = sim_time + uniform(min_colectivo, max_colectivo, LlegadaColectivoAeropuerto);
 	transfer[2] = LlegadaColectivoAeropuerto;
 	list_file(INCREASING, LIST_EVENT);
 
-	if (mantenimiento = true) {
-		if (ColaTaxis < 25) {
-			
+	//acumula el número de viajes
+
+	cantidad_viajes++;
+
+	//LO DE LA VARIABLE BANDERA
+
+	//reduce la cola de pasajeros de la estación de taxis y aumenta la ocupación del colectivo
+
+	int tamaño_colectivo = list_size[Colectivo];
+	int tamaño_cola_taxi = list_size[ColaTaxis];
+
+	for  (i = 0; i < tamaño_colectivo; i++)
+	{
+		list_remove(FIRST, Colectivo);
+	}
+
+	if (list_size[ColaTaxis] <= 25)
+	{
+		for (i = 0; i < tamaño_cola_taxi; i++)
+		{
+			list_file(FIRST, Colectivo);
+			num_pasajeros++;
 		}
 	}
+	else
+	{
+		for (i = 0; i < 25; i++)
+		{
+			list_file(FIRST, Colectivo);
+			num_pasajeros++;
+		}
+	}
+	
+	if (list_size[ColaTaxis] <= 25)
+	{
+		for (i = 0; i < tamaño_cola_taxi; i++)
+		{
+			list_remove(LAST, ColaTaxis);
+		}
+	}
+	else
+	{
+		for (i = 0; i < 25; i++)
+		{
+			list_remove(LAST, ColaTaxis);
+		}
+	}
+
 }
 //preguntar por la bandera al cargar pasajeros. Si es true, no se genera nuevo arribo. hacer if
 
@@ -217,7 +383,7 @@ void Arribo_Mantenimiento(void)
 	list_file(INCREASING, LIST_EVENT);
 	
 	/* 4 horas */
-	transfer[1] = sim_time + 240; 
+	transfer[1] = sim_time + 255; 
 	transfer[2] = ArriboMantenimiento;
 	list_file(INCREASING, LIST_EVENT);
 
@@ -226,14 +392,34 @@ void Arribo_Mantenimiento(void)
 
 void Fin_Mantenimiento(void)
 {
+
+	// establece que se termino el mantenimiento
+
 	mantenimiento = false;
 
 	//preguntar por la proxima carga de pasajeros directamente. Usar la lógica de ese evento en este
 
 }
 
-void reporte( void )  /* Generar Reporte de la Simulaci¢n */
+void reporte( void )
 {
+	//Cantidad promedio de pasajeros transportados por el micro.
+
+	printf("El promedio de pasajeros transportados por el micro es de: ",num_pasajeros/cantidad_viajes);
+
+	//Número medio en cada una de las colas y entre las 2 colas juntas.
+
+	//printf("El número medio de la cola en el aeropuerto es de: ", );
+	//printf("El número medio de la cola en la estación de taxis es de: ",);
+	//printf("El número medio en ambas colas es de: ", );
+
+	//Demora media y máxima de las personas en cola, en cualquiera de los lugares.
+
+	//printf("La demora media en la cola del aeropuerto es de: ", );
+	//printf("La demora máxima en la cola del aeropuerto es de: ", );
+	//printf("La demora media en la cola de la estación de taxis es de: ", );
+	//printf("La demora máxima en la cola de la estación de taxis es de: ", );
+
 
 	/* Mostrar Par metros de Entrada */
 
