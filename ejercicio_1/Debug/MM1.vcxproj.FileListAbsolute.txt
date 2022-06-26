@@ -1,2 +1,3 @@
 C:\Users\Guill\OneDrive\Documentos\Simulacion\SimLib-Visual\SimLib-Visual\Debug\MM1.exe
 C:\Users\matia\Downloads\SimLib-Visual (1)\SimLib-Visual\Debug\MM1.exe
+C:\Users\Usuario\Desktop\cosas universidad\2022 1° cuatrimestre\Modelos y simulación\TPs\TP Práctico\Ejercicio_simlib\ejercicio_1\Debug\MM1.exe
