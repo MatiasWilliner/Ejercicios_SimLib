@@ -17,7 +17,8 @@
 #define ColaAeropuerto              2  /* Lista 2: Cola en el aeropuerto                       */
 #define ColaTaxis					3	/* Lista 3: Cola en la estacion de taxis                      */
 
-#define DemoraCola					1	/* Sampst 1: Demora en cola        */
+#define DemoraColaAeropuerto					1	/* Sampst 1: Demora en cola del aeropuerto       */
+#define DemoraColaTaxis							2	/* Sampst 2: Demora en cola	de la estación de taxis		*/
 
 
 
@@ -43,10 +44,6 @@ void reporte(void);
 int main()  /* Main function. */
 {
 	/* Apertura de Archivos que sean necesarios */
-
-	// Open for write 
- 
-   //fprintf(outfile,"The file 'data2' was not opened\n" );
 	
 	media_interarribos_aeropuerto = 12.8;
 	media_interarribos_estacion = 7.9;
@@ -76,7 +73,6 @@ int main()  /* Main function. */
 		timing();
 
 		/* Invoke the appropriate event function. */
-
 
 		switch( next_event_type )
 		{
@@ -147,38 +143,41 @@ void Rutina_arribos_taxi(void)
 
 	float prob;
 
-	prob = lcgrand(ArriboPasajerosEstacion);
+	prob = lcgrand(1);
 
-	if (prob <= 0.1)
+	if (prob <= 0.3)
 	{
-		for (i = 0; i < 4; i++)
-		{
-			list_file(LAST, ColaTaxis);
-			cantidad_cola_taxi++;
-		}
-
+		transfer[1] = sim_time;
+		list_file(LAST, ColaTaxis);
+		cantidad_cola_taxi++;
 	}
 	else
 	{
-		if (prob <= 0.25)
+		if (prob <= 0.75)
 		{
-			for (i = 0; i < 3; i++)
+			for (i = 0; i < 2; i++)
 			{
+				transfer[1] = sim_time;
 				list_file(LAST, ColaTaxis);
 				cantidad_cola_taxi++;
 			}
 		}
 		else
 		{
-			if (prob <= 0.55)
+			if (prob <= 0.90)
 			{
-				list_file(LAST, ColaTaxis);
-				cantidad_cola_taxi++;
+				for (i = 0; i < 3; i++)
+				{
+					transfer[1] = sim_time;
+					list_file(LAST, ColaTaxis);
+					cantidad_cola_taxi++;
+				}
 			}
 			else
 			{
-				for (i = 0; i < 2; i++)
+				for (i = 0; i < 4; i++)
 				{
+					transfer[1] = sim_time;
 					list_file(LAST, ColaTaxis);
 					cantidad_cola_taxi++;
 				}
@@ -200,39 +199,43 @@ void Rutina_arribos_aeropuerto(void)
 	
 	float prob;
 
-	prob = lcgrand(ArriboPasajerosAeropuerto);
+	prob = lcgrand(1);
 
-	if (prob<=0.1) 
+	if (prob <= 0.3)
 	{
-		for ( i = 0; i < 4; i++)
-		{
-			list_file(LAST, ColaAeropuerto);
-			cantidad_cola_taxi++;
-		}
+		transfer[1] = sim_time;
+		list_file(LAST, ColaAeropuerto);
+		cantidad_cola_aeropuerto++;
 	}
-	else 
+	else
 	{
-		if (prob <= 0.25) 
+		if (prob <= 0.75)
 		{
-			for (i = 0; i < 3; i++)
+			for (i = 0; i < 2; i++)
 			{
+				transfer[1] = sim_time;
 				list_file(LAST, ColaAeropuerto);
-				cantidad_cola_taxi++;
+				cantidad_cola_aeropuerto++;
 			}
 		}
 		else
 		{
-			if (prob <= 0.55) 
+			if (prob <= 0.90)
 			{
-				list_file(LAST, ColaAeropuerto);
-				cantidad_cola_taxi++;
-			}
-			else 
-			{
-				for (i = 0; i < 2; i++)
+				for (i = 0; i < 3; i++)
 				{
+					transfer[1] = sim_time;
 					list_file(LAST, ColaAeropuerto);
-					cantidad_cola_taxi++;
+					cantidad_cola_aeropuerto++;
+				}
+			}
+			else
+			{
+				for (i = 0; i < 4; i++)
+				{
+					transfer[1] = sim_time;
+					list_file(LAST, ColaAeropuerto);
+					cantidad_cola_aeropuerto++;
 				}
 			}
 		}
@@ -251,7 +254,7 @@ void Rutina_llegadas_colectivo_aeropuerto(void)
 
 	cantidad_viajes++;
 
-	//reduce la cola colectivo
+	//vacia el colectivo
 
 	int tamaño_colectivo =list_size[Colectivo];
 	int tamaño_cola_aeropuerto =list_size[ColaAeropuerto];
@@ -287,7 +290,7 @@ void Rutina_llegadas_colectivo_aeropuerto(void)
 		for (i = 0; i < tamaño_cola_aeropuerto; i++)
 		{
 			list_remove(LAST, ColaAeropuerto);
-			sampst(sim_time - transfer[1], DemoraCola);
+			sampst(sim_time - transfer[1], DemoraColaAeropuerto);
 		}
 	}
 	else
@@ -295,26 +298,18 @@ void Rutina_llegadas_colectivo_aeropuerto(void)
 		for (i = 0; i < 25; i++)
 		{
 			list_remove(LAST, ColaAeropuerto);
-			sampst(sim_time - transfer[1], DemoraCola);
+			sampst(sim_time - transfer[1], DemoraColaAeropuerto);
 		}
 	}
 }
 
 void Rutina_llegadas_colectivo_estacion(void) {
 
-	//genera próximo arribo de colectivo a aeropuerto
-
-	transfer[1] = sim_time + uniform(min_colectivo, max_colectivo, LlegadaColectivoAeropuerto);
-	transfer[2] = LlegadaColectivoAeropuerto;
-	list_file(INCREASING, LIST_EVENT);
-
 	//acumula el número de viajes
 
 	cantidad_viajes++;
 
-	//LO DE LA VARIABLE BANDERA
-
-	//reduce la cola de pasajeros de la estación de taxis y aumenta la ocupación del colectivo
+	//Se vacia el colectivo
 
 	int tamaño_colectivo = list_size[Colectivo];
 	int tamaño_cola_taxi = list_size[ColaTaxis];
@@ -324,56 +319,69 @@ void Rutina_llegadas_colectivo_estacion(void) {
 		list_remove(FIRST, Colectivo);
 	}
 
-	if (list_size[ColaTaxis] <= 25)
+	// Prtegunta para ver si esta en mantenimiento
+	//Reduce la cola de pasajeros de la estación de taxis y aumenta la ocupación del colectivo
+
+	if (!mantenimiento)
 	{
-		for (i = 0; i < tamaño_cola_taxi; i++)
+		if (list_size[ColaTaxis] <= 25)
 		{
-			list_file(FIRST, Colectivo);
-			num_pasajeros++;
+			for (i = 0; i < tamaño_cola_taxi; i++)
+			{
+				list_file(FIRST, Colectivo);
+				num_pasajeros++;
+			}
 		}
-	}
-	else
-	{
-		for (i = 0; i < 25; i++)
+		else
 		{
-			list_file(FIRST, Colectivo);
-			num_pasajeros++;
+			for (i = 0; i < 25; i++)
+			{
+				list_file(FIRST, Colectivo);
+				num_pasajeros++;
+			}
 		}
-	}
-	
-	if (list_size[ColaTaxis] <= 25)
-	{
-		for (i = 0; i < tamaño_cola_taxi; i++)
+
+		if (list_size[ColaTaxis] <= 25)
 		{
-			list_remove(LAST, ColaTaxis);
-			sampst(sim_time - transfer[1], DemoraCola);
+			for (i = 0; i < tamaño_cola_taxi; i++)
+			{
+				list_remove(LAST, ColaTaxis);
+				sampst(sim_time - transfer[1], DemoraColaTaxis);
+			}
 		}
-	}
-	else
-	{
-		for (i = 0; i < 25; i++)
+		else
 		{
-			list_remove(LAST, ColaTaxis);
-			sampst(sim_time - transfer[1], DemoraCola);
+			for (i = 0; i < 25; i++)
+			{
+				list_remove(LAST, ColaTaxis);
+				sampst(sim_time - transfer[1], DemoraColaTaxis);
+			}
 		}
+
+		//genera próximo arribo de colectivo a aeropuerto
+
+		transfer[1] = sim_time + uniform(min_colectivo, max_colectivo, LlegadaColectivoAeropuerto);
+		transfer[2] = LlegadaColectivoAeropuerto;
+		list_file(INCREASING, LIST_EVENT);
 	}
 
 }
-//preguntar por la bandera al cargar pasajeros. Si es true, no se genera nuevo arribo. hacer if
 
 void Rutina_arribo_mantenimiento(void) 
 {
-	/* 15 minutos */
+	// establece que empieza el mantenimiento
+
+	mantenimiento = true;
+
+	/* Programa el fin del mantenimiento. 15 minutos */
 	transfer[1] = sim_time + 15;
 	transfer[2] = FinMantenimiento;
 	list_file(INCREASING, LIST_EVENT);
 	
-	/* 4 horas */
-	transfer[1] = sim_time + 255; 
+	/* Programa el próximo mantenimiento. 4 horas*/
+	transfer[1] = sim_time + 240; 
 	transfer[2] = ArriboMantenimiento;
 	list_file(INCREASING, LIST_EVENT);
-
-	mantenimiento = true;
 }
 
 void Rutina_fin_mantenimiento(void)
@@ -383,7 +391,48 @@ void Rutina_fin_mantenimiento(void)
 
 	mantenimiento = false;
 
-	//preguntar por la proxima carga de pasajeros directamente. Usar la lógica de ese evento en este
+	// continúa con el trabajo cotidiano
+
+	int tamaño_cola_taxi = list_size[ColaTaxis];
+	if (list_size[ColaTaxis] <= 25)
+	{
+		for (i = 0; i < tamaño_cola_taxi; i++)
+		{
+			list_file(FIRST, Colectivo);
+			num_pasajeros++;
+		}
+	}
+	else
+	{
+		for (i = 0; i < 25; i++)
+		{
+			list_file(FIRST, Colectivo);
+			num_pasajeros++;
+		}
+	}
+
+	if (list_size[ColaTaxis] <= 25)
+	{
+		for (i = 0; i < tamaño_cola_taxi; i++)
+		{
+			list_remove(LAST, ColaTaxis);
+			sampst(sim_time - transfer[1], DemoraColaTaxis);
+		}
+	}
+	else
+	{
+		for (i = 0; i < 25; i++)
+		{
+			list_remove(LAST, ColaTaxis);
+			sampst(sim_time - transfer[1], DemoraColaTaxis);
+		}
+	}
+
+	//genera próximo arribo de colectivo a aeropuerto
+
+	transfer[1] = sim_time + uniform(min_colectivo, max_colectivo, LlegadaColectivoAeropuerto);
+	transfer[2] = LlegadaColectivoAeropuerto;
+	list_file(INCREASING, LIST_EVENT);
 
 }
 
@@ -401,8 +450,12 @@ void reporte( void )
 
 	//Demora media y máxima de las personas en cola, en cualquiera de los lugares.
 
-	sampst(0.0,- DemoraCola);
-	printf("\nLa demora media en las colas es de: %f", (transfer[1]));
-	printf("\nLa demora máxima en las colas es de: %f\n", (transfer[3]));
+	sampst(0.0,- DemoraColaAeropuerto);
+	printf("\nLa demora media en la cola del aeropuerto es de: %f", (transfer[1]));
+	printf("\nLa demora máxima en la cola del aeropuerto es de: %f\n", (transfer[3]));
+
+	sampst(0.0, -DemoraColaTaxis);
+	printf("\nLa demora media en la cola de una estación de taxi es de: %f", (transfer[1]));
+	printf("\nLa demora máxima en las cola de una estación de taxi es de: %f\n", (transfer[3]));
 	
 }

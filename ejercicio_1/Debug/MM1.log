@@ -12,6 +12,6 @@ C:\Users\Usuario\Desktop\cosas universidad\2022 1° cuatrimestre\Modelos y simul
 C:\Users\Usuario\Desktop\cosas universidad\2022 1° cuatrimestre\Modelos y simulación\TPs\TP Práctico\Ejercicio_simlib\ejercicio_1\simlib.c(552,27): warning C4305: '=': truncamiento de 'double' a 'float'
 C:\Users\Usuario\Desktop\cosas universidad\2022 1° cuatrimestre\Modelos y simulación\TPs\TP Práctico\Ejercicio_simlib\ejercicio_1\simlib.c(663,18): warning C4244: 'return': conversión de 'double' a 'float'; posible pérdida de datos
 C:\Users\Usuario\Desktop\cosas universidad\2022 1° cuatrimestre\Modelos y simulación\TPs\TP Práctico\Ejercicio_simlib\ejercicio_1\simlib.c(780,26): warning C4244: 'return': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\Usuario\Desktop\cosas universidad\2022 1° cuatrimestre\Modelos y simulación\TPs\TP Práctico\Ejercicio_simlib\ejercicio_1\MM1.cc(51,38): warning C4305: '=': truncamiento de 'double' a 'float'
-C:\Users\Usuario\Desktop\cosas universidad\2022 1° cuatrimestre\Modelos y simulación\TPs\TP Práctico\Ejercicio_simlib\ejercicio_1\MM1.cc(52,35): warning C4305: '=': truncamiento de 'double' a 'float'
+C:\Users\Usuario\Desktop\cosas universidad\2022 1° cuatrimestre\Modelos y simulación\TPs\TP Práctico\Ejercicio_simlib\ejercicio_1\MM1.cc(48,38): warning C4305: '=': truncamiento de 'double' a 'float'
+C:\Users\Usuario\Desktop\cosas universidad\2022 1° cuatrimestre\Modelos y simulación\TPs\TP Práctico\Ejercicio_simlib\ejercicio_1\MM1.cc(49,35): warning C4305: '=': truncamiento de 'double' a 'float'
   MM1.vcxproj -> C:\Users\Usuario\Desktop\cosas universidad\2022 1° cuatrimestre\Modelos y simulación\TPs\TP Práctico\Ejercicio_simlib\ejercicio_1\Debug\MM1.exe
